@@ -52,7 +52,7 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
 };
 
 function createStringQuestion(str, nameIt) {
-  return { type: 'string', message: str, name: nameIt }
+  return { type: 'input', message: str, name: nameIt }
 }
 
 function cliReveal(payload, password, op) {
@@ -175,7 +175,7 @@ program
       return;
     }
 
-    const questions = [{ type: 'string', message: 'Enter message to decrypt:', name: 'payload' }, {
+    const questions = [{ type: 'input', message: 'Enter message to decrypt:', name: 'payload' }, {
       type: 'password',
       message: 'Enter password :',
       name: 'password',
