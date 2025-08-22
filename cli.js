@@ -22,11 +22,17 @@ const { detach } = zwcOperations(StegCloak.zwc);
 
 function cliHide(secret, password, cover, crypt, integrity, op) {
   const stegcloak = new StegCloak(crypt, integrity)
+
+  if (crypt && !password) {
+    console.log(chalk.red('Error: A password is required for encryption'))
+    process.exit(0)
+  }
+
   const spinner = ora(chalk.cyan.bold('Hiding your text'))
   spinner.start()
   let payload
   try {
-    payload = stegcloak.hide(secret, password, cover, op)
+    payload = stegcloak.hide(secret, password, cover)
   } catch (e) {
     console.log('\n')
     console.log(chalk.red(e))
