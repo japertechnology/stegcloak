@@ -34,6 +34,7 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
   try {
     payload = stegcloak.hide(secret, password, cover)
   } catch (e) {
+    spinner.stop()
     console.log('\n')
     console.log(chalk.red(e))
     process.exit(0)
@@ -63,6 +64,7 @@ function cliReveal(payload, password, op) {
   try {
     secret = stegcloak.reveal(payload, password)
   } catch (e) {
+    spinner.stop()
     console.log('\n')
     console.log(chalk.red(e))
     process.exit(0)
@@ -233,3 +235,5 @@ program
   })
 
 program.parse(process.argv)
+
+module.exports = { cliHide, cliReveal }
