@@ -8,6 +8,8 @@ const originalArgv = process.argv
 let current = null
 let hideStopped = false
 let revealStopped = false
+let hideExitCode = null
+let revealExitCode = null
 
 Module._load = function (request, parent, isMain) {
   if (request === 'ora') {
@@ -42,7 +44,11 @@ Module._load = function (request, parent, isMain) {
   return originalLoad(request, parent, isMain)
 }
 
-process.exit = () => { throw new Error('exit') }
+process.exit = (code) => {
+  if (current === 'hide') hideExitCode = code
+  if (current === 'reveal') revealExitCode = code
+  throw new Error('exit')
+}
 
 const { cliHide, cliReveal } = require('../cli.js')
 
@@ -66,4 +72,7 @@ Module._load = originalLoad
 
 assert.ok(hideStopped, 'cliHide did not stop spinner on error')
 assert.ok(revealStopped, 'cliReveal did not stop spinner on error')
+assert.strictEqual(hideExitCode, 1, 'cliHide did not exit with code 1 on error')
+assert.strictEqual(revealExitCode, 1, 'cliReveal did not exit with code 1 on error')
 console.log('CLI spinner error handling tests passed')
+process.exit(0)
