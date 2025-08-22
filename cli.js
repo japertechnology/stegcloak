@@ -25,7 +25,7 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
 
   if (crypt && !password) {
     console.log(chalk.red('Error: A password is required for encryption'))
-    process.exit(0)
+    process.exit(1)
   }
 
   const spinner = ora(chalk.cyan.bold('Hiding your text'))
@@ -37,7 +37,7 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
     spinner.stop()
     console.log('\n')
     console.log(chalk.red(e))
-    process.exit(0)
+    process.exit(1)
   }
   clipboardy.writeSync(payload)
   setTimeout(() => {
@@ -67,7 +67,7 @@ function cliReveal(payload, password, op) {
     spinner.stop()
     console.log('\n')
     console.log(chalk.red(e))
-    process.exit(0)
+    process.exit(1)
   }
   setTimeout(() => {
     spinner.stop()
@@ -94,10 +94,10 @@ program
     if (args.config) {
       jsonfile.readFile(args.config)
         .then(obj => {
-          if (!("secret" in obj && "cover" in obj)) {
-            console.error(chalk.red("Config Parse error") + " : Missing inputs");
-            process.exit(0);
-          }
+        if (!("secret" in obj && "cover" in obj)) {
+          console.error(chalk.red("Config Parse error") + " : Missing inputs");
+          process.exit(1);
+        }
           secret = obj.secret;
           cover = obj.cover;
           let password = obj.password || process.env["STEGCLOAK_PASSWORD"];
@@ -161,10 +161,10 @@ program
     if (args.config) {
       jsonfile.readFile(args.config)
         .then(obj => {
-          if (!("message" in obj)) {
-            console.error(chalk.red("Config Parse error") + " : Missing inputs");
-            process.exit(0);
-          }
+        if (!("message" in obj)) {
+          console.error(chalk.red("Config Parse error") + " : Missing inputs");
+          process.exit(1);
+        }
           data = obj.message;
           if (!obj.password && process.env["STEGCLOAK_PASSWORD"]) {
             console.warn(chalk.yellow("Warning:") + " using password from environment variable");
