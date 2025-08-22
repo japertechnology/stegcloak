@@ -94,8 +94,17 @@ const zwcHuffMan = (zwc) => {
   };
 
   const expand = (secret) => {
+    if (!secret) {
+      return secret;
+    }
     const flag = secret[0];
+    if (!zwc.includes(flag)) {
+      throw new Error("Unknown compression flag");
+    }
     const invisibleStream = secret.slice(1);
+    if (!invisibleStream) {
+      return "";
+    }
     const repeatChars = _extractCompressFlag(flag);
     return recursiveReplace(
       invisibleStream,
