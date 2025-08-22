@@ -55,11 +55,23 @@ const _extract = (mode, config, salt) => {
   if (mode === "encrypt") {
     output.secret = data;
   } else if (mode === "decrypt") {
+    if (data.length < 8) {
+      throw new Error("Invalid payload: missing salt");
+    }
     salt = buffSlice(data, 0, 8);
     if (config.integrity) {
+      if (data.length < 40) {
+        throw new Error("Invalid payload: missing HMAC");
+      }
       output.hmacData = buffSlice(data, 8, 40);
+      if (data.length <= 40) {
+        throw new Error("Invalid payload: missing ciphertext");
+      }
       output.secret = buffSlice(data, 40);
     } else {
+      if (data.length <= 8) {
+        throw new Error("Invalid payload: missing ciphertext");
+      }
       output.secret = buffSlice(data, 8);
     }
   }
