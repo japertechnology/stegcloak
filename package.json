@@ -14,7 +14,7 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "test": "node test/detach.test.js && node test/expand.test.js && node test/embed.test.js"
+    "test": "node test/detach.test.js && node test/expand.test.js && node test/embed.test.js && node test/cli-spinner.test.js"
   },
   "author": "KuroLabs",
   "license": "MIT",
