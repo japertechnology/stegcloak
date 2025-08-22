@@ -11,3 +11,5 @@ assert.strictEqual(expand(zwc[0]), '', 'expand should return empty string when d
 assert.throws(() => expand('x' + zwc[4]), /Unknown compression flag/, 'expand should throw when flag is invalid');
 
 console.log('All tests passed.');
+
+process.exit(0);
