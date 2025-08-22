@@ -50,7 +50,9 @@ class StegCloak {
   }
 
   hide(message, password, cover = "This is a confidential text") {
-    if (cover.split(" ").length === 1) {
+    cover = cover.trim();
+    const tokens = cover.split(/\s+/).filter(Boolean);
+    if (tokens.length < 2) {
       throw new Error("Minimum two words required");
     }
 
