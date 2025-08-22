@@ -25,6 +25,9 @@ const zwcOperations = (zwc) => {
   // Data to ZWC hidden string
 
   const _dataToZWC = (integrity, crypt, str) => {
+    if (str.length % 2 !== 0) {
+      throw new Error("Binary string length must be even");
+    }
     const flag = integrity && crypt ? zwc[0] : crypt ? zwc[1] : zwc[2];
     return (
       flag +
