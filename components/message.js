@@ -111,12 +111,16 @@ const zwcOperations = (zwc) => {
 
 // Embed invisble stream to cover text
 
-const embed = (cover, secret) => {
+// An optional RNG can be supplied for deterministic behaviour in tests.
+// The RNG should be a function that mimics Math.random.
+const embed = (cover, secret, rng = Math.random) => {
   const arr = cover.split(" ");
-  const targetIndex = Math.floor(Math.random() * Math.floor(arr.length/2));
-  return arr.slice(0, targetIndex+1)
-    .concat([secret + arr[targetIndex+1]])
-    .concat(arr.slice(targetIndex+2, arr.length))
+  // Ensure we pick an index that has a following word available
+  const targetIndex = Math.floor(rng() * (arr.length - 1));
+  return arr
+    .slice(0, targetIndex + 1)
+    .concat([secret + arr[targetIndex + 1]])
+    .concat(arr.slice(targetIndex + 2, arr.length))
     .join(" ");
 };
 
