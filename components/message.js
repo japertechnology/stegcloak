@@ -91,7 +91,7 @@ const zwcOperations = (zwc) => {
   };
 
   const detach = (str) => {
-    const eachWords = str.split(" ");
+    const eachWords = str.split(/\s+/).filter(Boolean);
     for (const word of eachWords) {
       const zwcBound = word.split("");
       const intersected = intersection(zwc, zwcBound);
