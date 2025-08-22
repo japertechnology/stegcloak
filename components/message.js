@@ -39,6 +39,11 @@ const zwcOperations = (zwc) => {
 
   const flagDetector = (x) => {
     const i = zwc.indexOf(x[0]);
+    if (i < 0 || i > 2) {
+      throw new Error(
+        "Invalid flag detected. Ensure the message was created using StegCloak."
+      );
+    }
     if (i === 0) {
       return {
         encrypt: true,
@@ -49,12 +54,11 @@ const zwcOperations = (zwc) => {
         encrypt: true,
         integrity: false,
       };
-    } else if (i === 2) {
-      return {
-        encrypt: false,
-        integrity: false,
-      };
     }
+    return {
+      encrypt: false,
+      integrity: false,
+    };
   };
 
   // Message curried functions
@@ -67,7 +71,12 @@ const zwcOperations = (zwc) => {
 
   // ZWC string to data
   const concealToData = (str) => {
-    const { encrypt, integrity } = flagDetector(str);
+    let encrypt, integrity;
+    try {
+      ({ encrypt, integrity } = flagDetector(str));
+    } catch (err) {
+      throw new Error(`Invalid hidden flag: ${err.message}`);
+    }
     return {
       encrypt,
       integrity,
