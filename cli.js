@@ -196,7 +196,13 @@ program
 
       data = data || clipboardy.readSync()
 
-      const stream = expand(detach(data))
+      let stream
+      try {
+        stream = expand(detach(data))
+      } catch (e) {
+        console.log(chalk.red('No hidden payload found in provided text.'))
+        process.exit(0)
+      }
 
       if (stream[0] === StegCloak.zwc[2] || process.env["STEGCLOAK_PASSWORD"]) {
         if (process.env["STEGCLOAK_PASSWORD"]) {
@@ -216,7 +222,13 @@ program
 
     else {
       inquirer.prompt([questions[0]]).then(answers => {
-        const stream = expand(detach(answers.payload))
+        let stream
+        try {
+          stream = expand(detach(answers.payload))
+        } catch (e) {
+          console.log(chalk.red('No hidden payload found in provided text.'))
+          process.exit(0)
+        }
 
         if (stream[0] === StegCloak.zwc[2]) {
           cliReveal(answers.payload, null, args.output)
