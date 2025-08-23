@@ -100,7 +100,7 @@ const zwcOperations = (zwc) => {
       const intersected = intersection(zwc, zwcBound);
       if (intersected.length !== 0) {
         const limit = zwcBound.findIndex((x) => !~zwc.indexOf(x));
-        return word.slice(0, limit);
+        return limit === -1 ? word : word.slice(0, limit);
       }
     }
     throw new Error(
