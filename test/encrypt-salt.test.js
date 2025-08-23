@@ -1,3 +1,4 @@
+// Ensure encryption uses a 16 byte salt and round-trips correctly
 const assert = require('assert');
 const { encrypt, decrypt } = require('../components/encrypt.js');
 

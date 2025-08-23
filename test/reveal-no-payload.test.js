@@ -1,3 +1,4 @@
+// Confirm reveal throws when no hidden data exists
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 

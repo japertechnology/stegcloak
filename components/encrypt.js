@@ -1,5 +1,11 @@
 "use strict";
 
+/**
+ * Implements symmetric encryption and decryption using AES-256-CTR along with
+ * PBKDF2 based key derivation and optional HMAC integrity protection.  These
+ * helpers are used by the main StegCloak module to secure the hidden payload.
+ */
+
 const aes = require("browserify-cipher");
 const { createCipheriv, createDecipheriv } = aes;
 const randomBytes = require("randombytes");
@@ -9,15 +15,16 @@ const { curry } = require("ramda");
 const timeSafeCheck = require("timing-safe-equal");
 const { toBuffer, concatBuff, buffSlice } = require("./util.js");
 
-// Key generation from a password
-
+// Derive a 48 byte key from the password and salt using PBKDF2.  The first
+// 16 bytes are used as the IV and the remaining 32 bytes as the AES key.
 const _genKey = (password, salt) =>
   pbkdf2Sync(password, salt, 10000, 48, "sha512");
 
-// Aes stream cipher with random salt and iv -> encrypt an array -- input {password,data,integrity:bool}
-
+// AES stream cipher with random salt and IV.  Expects an object
+// `{password, data, integrity}` and returns an encrypted Buffer.  When
+// `integrity` is true, an HMAC of the plaintext is prepended to the output.
 const encrypt = (config) => {
-  // Impure function Side-effects!
+  // Impure function – generates random bytes for salt and IV.
   const salt = randomBytes(16);
   const { iv, key, secret } = _bootEncrypt(config, salt);
   const cipher = createCipheriv("aes-256-ctr", key, iv);
@@ -29,6 +36,8 @@ const encrypt = (config) => {
   return concatBuff([salt, payload]);
 };
 
+// Reverse of `encrypt`. Validates HMAC when requested and returns the
+// decrypted Buffer. Throws on integrity failure or malformed input.
 const decrypt = (config) => {
   const { iv, key, secret, hmacData } = _bootDecrypt(config, null);
   const decipher = createDecipheriv("aes-256-ctr", key, iv);
@@ -47,8 +56,8 @@ const decrypt = (config) => {
   return decrypted;
 };
 
-// Extracting parameters for encrypt/decrypt from provided input
-
+// Extract parameters for encryption/decryption from the provided config.
+// Handles parsing of salt, HMAC and ciphertext depending on the mode.
 const _extract = (mode, config, salt) => {
   const data = toBuffer(config.data);
   const output = {};
@@ -82,8 +91,8 @@ const _extract = (mode, config, salt) => {
   return output;
 };
 
-// Encryption/Decryption curried functions
-
+// Curried helpers used internally by the public `encrypt`/`decrypt` APIs
+// to partially apply the mode.
 const _bootEncrypt = curry(_extract)("encrypt");
 
 const _bootDecrypt = curry(_extract)("decrypt");

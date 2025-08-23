@@ -1,3 +1,4 @@
+// Validate the behaviour of the expand helper from zwcHuffMan
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 const { zwcHuffMan } = require('../components/compact.js');

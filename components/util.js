@@ -1,5 +1,11 @@
 "use strict";
 
+/**
+ * Collection of small utility helpers used across the StegCloak codebase.
+ * They operate on buffers, binary strings and arrays while avoiding any
+ * side effects.
+ */
+
 const Buffer = require("safe-buffer").Buffer;
 
 const {
@@ -14,7 +20,7 @@ const {
   takeLast,
 } = require("ramda");
 
-// Compliment an array and ensure values stay in the 0-255 range
+// Compliment a byte and ensure values stay in the 0-255 range
 const _not = (x) => (~x) & 0xff;
 
 // Slice a buffer
@@ -23,20 +29,19 @@ const buffSlice = (x, y, z = x.length) => pipe(byarr, slice(y, z), toBuffer)(x);
 // Concatenate buffers
 const concatBuff = Buffer.concat;
 
-// convert byte array to buffer
+// Convert byte array to buffer
 const toBuffer = Buffer.from;
 
-// convert buffer to byte array
+// Convert buffer to byte array
 const byarr = (x) => Uint8Array.from(x); // Cannot be point-free since Uint8Array.from() needs to be bound to its prototype
 
-// Number to Binary String conversion
+// Number to binary string conversion
 const nTobin = (x) => x.toString(2);
 
 // Convert to byte array and apply complement
-
 const compliment = pipe(byarr, map(_not));
 
-// Map in steps 
+// Map over an array in fixed-size steps
 const stepMap = curry((callback, step, array) => {
   return array
     .map((d, i, array) => {
@@ -48,7 +53,6 @@ const stepMap = curry((callback, step, array) => {
 });
 
 // Pure recursive regular expression replace
-
 const recursiveReplace = (data, patternArray, replaceArray) => {
   if (isEmpty(patternArray) && isEmpty(replaceArray)) {
     return data;
@@ -72,10 +76,10 @@ const zeroPad = curry((x, num) => {
   return zero.slice(String(num).length) + num;
 });
 
-// Byte array to Binary String conversion. Ensure input bytes are unsigned.
+// Byte array to binary string conversion. Ensure input bytes are unsigned.
 const byteToBin = pipe(byarr, Array.from, map(nTobin), map(zeroPad(8)), join(""));
 
-// Binary String to Byte Array conversion
+// Binary string to byte array conversion
 const binToByte = (str) => {
   var arr = [];
   for (let i = 0; i < str.length; i += 8) {

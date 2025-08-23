@@ -1,3 +1,4 @@
+// Ensure CLI spinner stops and process exits correctly on errors
 const assert = require('assert')
 const Module = require('module')
 

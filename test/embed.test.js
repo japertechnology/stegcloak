@@ -1,3 +1,4 @@
+// Verify that embedding preserves original whitespace in multiple scenarios
 const assert = require('assert');
 const { embed } = require('../components/message.js');
 

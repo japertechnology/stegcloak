@@ -1,3 +1,4 @@
+// Tests for detaching zero width sequences from a cover text
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 const { zwcOperations } = require('../components/message.js');

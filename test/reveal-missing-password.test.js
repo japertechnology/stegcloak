@@ -1,3 +1,4 @@
+// Ensure reveal warns when password is omitted for encrypted payloads
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 
