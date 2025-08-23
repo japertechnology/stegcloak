@@ -1,3 +1,4 @@
+// Check that binary strings must have even length for conversion
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 const { zwcOperations } = require('../components/message.js');

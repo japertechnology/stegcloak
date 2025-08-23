@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 'use strict'
 
-// CLI TOOL Full of sideffects !
+// Command line interface for StegCloak.  This script wires the library into a
+// user friendly CLI that can hide or reveal messages and interactively prompt
+// for required inputs.
 
 const {
   program
@@ -16,10 +18,13 @@ const fs = require('fs')
 const jsonfile = require('jsonfile');
 const { zwcHuffMan } = require('./components/compact')
 const { zwcOperations } = require("./components/message");
+// Precompute helpers reused by the CLI
 const { expand } = zwcHuffMan(StegCloak.zwc)
 const { detach } = zwcOperations(StegCloak.zwc);
 
 
+// Hide a secret message using supplied options and optionally copy or write
+// the result.  Acts as the implementation behind the `hide` command.
 function cliHide(secret, password, cover, crypt, integrity, op) {
   const stegcloak = new StegCloak(crypt, integrity)
 
@@ -52,10 +57,12 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
   }, 300)
 };
 
+// Small helper to build Inquirer question objects
 function createStringQuestion(str, nameIt) {
   return { type: 'input', message: str, name: nameIt }
 }
 
+// Reveal and display a hidden message. Mirrors `cliHide` but for extraction.
 function cliReveal(payload, password, op) {
   const stegcloak = new StegCloak()
   var spinner = ora(chalk.cyan.bold('Decrypting'))
@@ -82,6 +89,7 @@ function cliReveal(payload, password, op) {
   }, 300)
 };
 
+// Definition for the `hide` command
 program
   .command('hide [secret] [cover]')
   .option('-fc, --fcover <fcover> ', 'Extract cover text from file')
@@ -150,6 +158,7 @@ program
 
 // CLI
 
+// Definition for the `reveal` command
 program
   .command('reveal [message]')
   .option('-f, --file <file> ', 'Extract message to be revealed from file')

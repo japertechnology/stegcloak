@@ -1,3 +1,4 @@
+// End-to-end test when encryption is disabled
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 

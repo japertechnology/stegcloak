@@ -1,5 +1,11 @@
 "use strict";
 
+/**
+ * Provides utilities for transforming plain binary data into sequences of zero
+ * width characters and vice versa.  It also exposes helpers to embed the
+ * hidden stream into a cover text and to detach it again during reveal.
+ */
+
 const {
   pipe,
   intersection,
@@ -15,15 +21,13 @@ const {
 const { zeroPad, nTobin, stepMap, binToByte } = require("./util.js");
 
 const zwcOperations = (zwc) => {
-  // Map binary to ZWC
-
+  // Map binary to its corresponding zero width character
   const _binToZWC = (str) => zwc[parseInt(str, 2)];
 
-  // Map ZWC to binary
+  // Map a zero width character back to binary
   const _ZWCTobin = pipe(indexOf(__, zwc), nTobin, zeroPad(2));
 
-  // Data to ZWC hidden string
-
+  // Convert binary data into a hidden zero width character string
   const _dataToZWC = (integrity, crypt, str) => {
     if (str.length % 2 !== 0) {
       throw new Error("Binary string length must be even");
@@ -38,8 +42,7 @@ const zwcOperations = (zwc) => {
     ); // Binary to zwc conversion)
   };
 
-  // Check if encryption or hmac integrity check was performed during encryption
-
+  // Check if encryption or HMAC integrity check was performed
   const flagDetector = (x) => {
     const i = zwc.indexOf(x[0]);
     if (i < 0 || i > 2) {
@@ -64,15 +67,14 @@ const zwcOperations = (zwc) => {
     };
   };
 
-  // Message curried functions
-
+  // Message conversion helpers with pre-applied flags
   const toConcealHmac = curry(_dataToZWC)(true)(true);
 
   const toConceal = curry(_dataToZWC)(false)(true);
 
   const noCrypt = curry(_dataToZWC)(false)(false);
 
-  // ZWC string to data
+  // Convert a zero width string back into binary data
   const concealToData = (str) => {
     let encrypt, integrity;
     try {
@@ -93,6 +95,7 @@ const zwcOperations = (zwc) => {
     };
   };
 
+  // Extract the first word containing zero width characters from a string
   const detach = (str) => {
     const eachWords = str.split(/\s+/).filter(Boolean);
     for (const word of eachWords) {

@@ -1,3 +1,4 @@
+// Validate that hide throws when encryption is enabled without a password
 const assert = require('assert');
 const StegCloak = require('../stegcloak.js');
 
