@@ -109,7 +109,7 @@ program
           let output = obj.output || false;
           cliHide(secret, password, cover, !nocrypt, integrity, output);
         })
-        .catch(error => console.error(error))
+        .catch(error => { console.error(error); process.exit(1); })
       return;
     }
 
@@ -173,7 +173,7 @@ program
           let output = obj.output || false;
           cliReveal(data, password, output)
         })
-        .catch(error => console.error(error));
+        .catch(error => { console.error(error); process.exit(1); });
       return;
     }
 
