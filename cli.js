@@ -89,14 +89,21 @@ function cliReveal(payload, password, op) {
   }, 300)
 };
 
-// Definition for the `hide` command
+// Definition for the `hide` command.  The command accepts optional secret and
+// cover parameters directly but can also source them from files or a config.
+// Additional flags allow disabling encryption, enabling integrity checks and
+// writing the result to disk instead of the clipboard.
 program
   .command('hide [secret] [cover]')
+  // Source cover text or secret from external files
   .option('-fc, --fcover <fcover> ', 'Extract cover text from file')
   .option('-fs, --fsecret <fsecret> ', 'Extract secret text from file')
+  // Toggle encryption/integrity behaviour
   .option('-n, --nocrypt', "If you don't need encryption", false)
   .option('-i, --integrity', 'If additional security of preventing tampering is needed', false)
+  // Control where the hidden payload is written
   .option('-o, --output <output> ', 'Stream the results to an output file')
+  // Allow providing all inputs via JSON config file
   .option('-c, --config <config>', 'Config file')
   .action(async (secret, cover, args) => {
     if (args.config) {
@@ -121,6 +128,8 @@ program
       return;
     }
 
+    // Build interactive prompts for missing inputs.  When a password is
+    // supplied through the environment, avoid prompting the user again.
     const questions = process.env["STEGCLOAK_PASSWORD"] ? (console.warn(chalk.yellow("Warning:") + " using password from environment variable\n"), []) : [{
       type: 'password',
       message: 'Enter password :',
@@ -158,11 +167,15 @@ program
 
 // CLI
 
-// Definition for the `reveal` command
+// Definition for the `reveal` command.  Supports reading the payload from a
+// file, the clipboard or via a config object.  The secret can optionally be
+// written to disk instead of printed.
 program
   .command('reveal [message]')
+  // Source the message from a file or clipboard
   .option('-f, --file <file> ', 'Extract message to be revealed from file')
   .option('-cp, --clip', 'Copy message directly from clipboard')
+  // Optionally store the revealed message
   .option('-o, --output <output> ', 'Stream the secret to an output file')
   .option('-c, --config <config>', 'Config file')
   .action((data, args) => {
@@ -186,6 +199,8 @@ program
       return;
     }
 
+    // Interactive prompts for the message and password when they are not
+    // supplied through flags or configuration.
     const questions = [{ type: 'input', message: 'Enter message to decrypt:', name: 'payload' }, {
       type: 'password',
       message: 'Enter password :',
