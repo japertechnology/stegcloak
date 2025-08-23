@@ -60,6 +60,12 @@ class StegCloak {
 
     const crypt = this.encrypt;
 
+    if (crypt && (typeof password !== "string" || password.length === 0)) {
+      throw new Error(
+        "Password must be a non-empty string when encryption is enabled"
+      );
+    }
+
     const secret = R.pipe(compress, compliment)(message); // Compress and compliment to prepare the secret
 
     const payload = crypt ?
@@ -95,6 +101,10 @@ class StegCloak {
       )(secret));
     } catch (err) {
       throw new Error(`Failed to reveal message: ${err.message}`);
+    }
+
+    if (encrypt && (typeof password !== "string" || password.length === 0)) {
+      throw new Error("Password must be provided to reveal this message");
     }
 
     const decryptStream = encrypt ?
