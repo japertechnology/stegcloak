@@ -14,8 +14,8 @@ const {
   takeLast,
 } = require("ramda");
 
-// Compliment an array
-const _not = (x) => ~x;
+// Compliment an array and ensure values stay in the 0-255 range
+const _not = (x) => (~x) & 0xff;
 
 // Slice a buffer
 const buffSlice = (x, y, z = x.length) => pipe(byarr, slice(y, z), toBuffer)(x);
@@ -72,8 +72,8 @@ const zeroPad = curry((x, num) => {
   return zero.slice(String(num).length) + num;
 });
 
-// Byte array to Binary String conversion
-const byteToBin = pipe(Array.from, map(nTobin), map(zeroPad(8)), join(""));
+// Byte array to Binary String conversion. Ensure input bytes are unsigned.
+const byteToBin = pipe(byarr, Array.from, map(nTobin), map(zeroPad(8)), join(""));
 
 // Binary String to Byte Array conversion
 const binToByte = (str) => {
