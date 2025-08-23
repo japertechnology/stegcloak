@@ -24,6 +24,14 @@ covers.forEach((cover, idx) => {
   );
 });
 
+// Regression: handle target word composed only of zero-width characters
+const zwcOnlyCover = `hello ${first}`;
+assert.strictEqual(
+  detach(zwcOnlyCover),
+  first,
+  'detach should return the whole word when it contains only zero-width characters'
+);
+
 console.log('All tests passed.');
 
 process.exit(0);
