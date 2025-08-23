@@ -18,7 +18,7 @@ const _genKey = (password, salt) =>
 
 const encrypt = (config) => {
   // Impure function Side-effects!
-  const salt = randomBytes(8);
+  const salt = randomBytes(16);
   const { iv, key, secret } = _bootEncrypt(config, salt);
   const cipher = createCipheriv("aes-256-ctr", key, iv);
   const payload = concatBuff([cipher.update(secret, "utf8"), cipher.final()]);
@@ -55,24 +55,24 @@ const _extract = (mode, config, salt) => {
   if (mode === "encrypt") {
     output.secret = data;
   } else if (mode === "decrypt") {
-    if (data.length < 8) {
+    if (data.length < 16) {
       throw new Error("Invalid payload: missing salt");
     }
-    salt = buffSlice(data, 0, 8);
+    salt = buffSlice(data, 0, 16);
     if (config.integrity) {
-      if (data.length < 40) {
+      if (data.length < 48) {
         throw new Error("Invalid payload: missing HMAC");
       }
-      output.hmacData = buffSlice(data, 8, 40);
-      if (data.length <= 40) {
+      output.hmacData = buffSlice(data, 16, 48);
+      if (data.length <= 48) {
         throw new Error("Invalid payload: missing ciphertext");
       }
-      output.secret = buffSlice(data, 40);
+      output.secret = buffSlice(data, 48);
     } else {
-      if (data.length <= 8) {
+      if (data.length <= 16) {
         throw new Error("Invalid payload: missing ciphertext");
       }
-      output.secret = buffSlice(data, 8);
+      output.secret = buffSlice(data, 16);
     }
   }
 
