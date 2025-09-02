@@ -20,9 +20,12 @@ const { toBuffer, concatBuff, buffSlice } = require("./util.js");
 const _genKey = (password, salt) =>
   pbkdf2Sync(password, salt, 10000, 48, "sha512");
 
-// AES stream cipher with random salt and IV.  Expects an object
-// `{password, data, integrity}` and returns an encrypted Buffer.  When
-// `integrity` is true, an HMAC of the plaintext is prepended to the output.
+/**
+ * Encrypt a UTF-8 string using AES-256-CTR with a random salt and IV.
+ * Optionally prepends an HMAC for integrity protection.
+ * @param {{password: string, data: string|Buffer, integrity: boolean}} config
+ * @returns {Buffer} Encrypted payload containing salt and optional HMAC.
+ */
 const encrypt = (config) => {
   // Impure function – generates random bytes for salt and IV.
   const salt = randomBytes(16);
@@ -36,8 +39,12 @@ const encrypt = (config) => {
   return concatBuff([salt, payload]);
 };
 
-// Reverse of `encrypt`. Validates HMAC when requested and returns the
-// decrypted Buffer. Throws on integrity failure or malformed input.
+/**
+ * Decrypt a payload produced by {@link encrypt}.
+ * Validates the HMAC when requested.
+ * @param {{password: string, data: Buffer, integrity: boolean}} config
+ * @returns {Buffer} Decrypted plaintext.
+ */
 const decrypt = (config) => {
   const { iv, key, secret, hmacData } = _bootDecrypt(config, null);
   const decipher = createDecipheriv("aes-256-ctr", key, iv);
@@ -56,8 +63,14 @@ const decrypt = (config) => {
   return decrypted;
 };
 
-// Extract parameters for encryption/decryption from the provided config.
-// Handles parsing of salt, HMAC and ciphertext depending on the mode.
+/**
+ * Extract parameters for encryption/decryption from the provided config.
+ * Handles parsing of salt, HMAC and ciphertext depending on the mode.
+ * @param {"encrypt"|"decrypt"} mode Operating mode.
+ * @param {{password: string, data: Buffer, integrity: boolean}} config
+ * @param {Buffer|null} salt Optional salt for encryption mode.
+ * @returns {Object} Parsed components like iv, key, secret and hmacData.
+ */
 const _extract = (mode, config, salt) => {
   const data = toBuffer(config.data);
   const output = {};

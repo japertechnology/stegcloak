@@ -20,6 +20,11 @@ const {
 
 const { zeroPad, nTobin, stepMap, binToByte } = require("./util.js");
 
+/**
+ * Factory creating helpers for working with zero width character streams.
+ * @param {string[]} zwc Array of zero width characters used for encoding.
+ * @returns {{detach: Function, concealToData: Function, toConcealHmac: Function, toConceal: Function, noCrypt: Function}}
+ */
 const zwcOperations = (zwc) => {
   // Map binary to its corresponding zero width character
   const _binToZWC = (str) => zwc[parseInt(str, 2)];
@@ -74,7 +79,11 @@ const zwcOperations = (zwc) => {
 
   const noCrypt = curry(_dataToZWC)(false)(false);
 
-  // Convert a zero width string back into binary data
+  /**
+   * Convert a zero width string back into binary data with flag analysis.
+   * @param {string} str Zero width character string to decode.
+   * @returns {{encrypt: boolean, integrity: boolean, data: Uint8Array}}
+   */
   const concealToData = (str) => {
     let encrypt, integrity;
     try {
@@ -95,7 +104,11 @@ const zwcOperations = (zwc) => {
     };
   };
 
-  // Extract the first word containing zero width characters from a string
+  /**
+   * Extract the first word containing zero width characters from a string.
+   * @param {string} str Cover text potentially containing hidden data.
+   * @returns {string} Detected zero width segment.
+   */
   const detach = (str) => {
     const eachWords = str.split(/\s+/).filter(Boolean);
     for (const word of eachWords) {
@@ -120,10 +133,14 @@ const zwcOperations = (zwc) => {
   };
 };
 
-// Embed invisble stream to cover text
-
-// An optional RNG can be supplied for deterministic behaviour in tests.
-// The RNG should be a function that mimics Math.random.
+/**
+ * Embed a hidden zero width stream into a cover text.
+ * An optional RNG can be supplied for deterministic behaviour in tests.
+ * @param {string} cover Visible text that will carry the secret.
+ * @param {string} secret Zero width character stream to embed.
+ * @param {Function} [rng=Math.random] Random number generator used to pick the insertion point.
+ * @returns {string} Cover text with embedded secret.
+ */
 const embed = (cover, secret, rng = Math.random) => {
   const arr = cover.split(/(\s+)/);
   const wordCount = Math.ceil(arr.length / 2);
