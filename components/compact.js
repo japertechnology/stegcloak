@@ -13,7 +13,12 @@ const { recursiveReplace } = require("./util");
 
 const lzutf8 = require("lzutf8");
 
-// Compress plain text into a Buffer using LZUTF8
+/**
+ * Compress plain text into a Buffer using LZUTF8.
+ *
+ * @param {string} x Text to be compressed.
+ * @returns {Buffer} Compressed representation of the input text.
+ */
 const compress = (x) =>
   lzutf8.compress(x, {
     outputEncoding: "Buffer",
@@ -25,11 +30,24 @@ const _lzutf8Decompress = curry(lzutf8.decompress)(__, {
   outputEncoding: "String",
 });
 
-// Decompress a Buffer back into a string
+/**
+ * Decompress a Buffer back into a string.
+ *
+ * @param {Buffer|Uint8Array|string} x Compressed data produced by {@link compress}.
+ * @returns {string} The original uncompressed text.
+ */
 const decompress = pipe(Buffer.from, _lzutf8Decompress);
 
-// Build a ranking table to determine which two characters benefit most from
-// compression. Returns the optimal pair sorted alphabetically.
+/**
+ * Build a ranking table to determine which two characters benefit most from
+ * compression.
+ *
+ * Returns the optimal pair sorted alphabetically.
+ *
+ * @param {string} secret     Zero width character stream.
+ * @param {string[]} characters Candidate zero width characters to analyse.
+ * @returns {string[]} Two character array representing the best compression pair.
+ */
 const findOptimal = (secret, characters) => {
   const dict = characters.reduce((acc, data) => {
     acc[data] = {};
@@ -75,7 +93,12 @@ const findOptimal = (secret, characters) => {
   return reqZwc.slice().sort();
 };
 
-// Generate shrink/expand helpers for a given set of zero width characters.
+/**
+ * Generate shrink/expand helpers for a given set of zero width characters.
+ *
+ * @param {string[]} zwc Array of zero width characters used for encoding.
+ * @returns {{shrink: function(string): string, expand: function(string): string}} Object containing helper functions.
+ */
 const zwcHuffMan = (zwc) => {
   const tableMap = [
     zwc[0] + zwc[1],

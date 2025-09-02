@@ -23,25 +23,62 @@ const {
 // Compliment a byte and ensure values stay in the 0-255 range
 const _not = (x) => (~x) & 0xff;
 
-// Slice a buffer
+/**
+ * Slice a buffer.
+ *
+ * @param {Buffer|Uint8Array} x Source buffer.
+ * @param {number} y Start index.
+ * @param {number} [z=x.length] End index (non-inclusive).
+ * @returns {Buffer} New buffer containing the requested slice.
+ */
 const buffSlice = (x, y, z = x.length) => pipe(byarr, slice(y, z), toBuffer)(x);
 
-// Concatenate buffers
+/**
+ * Concatenate multiple buffers.
+ *
+ * @type {function(Buffer[]): Buffer}
+ */
 const concatBuff = Buffer.concat;
 
-// Convert byte array to buffer
+/**
+ * Convert a byte array into a Buffer instance.
+ *
+ * @type {function(Array|ArrayBuffer|Uint8Array|string): Buffer}
+ */
 const toBuffer = Buffer.from;
 
-// Convert buffer to byte array
+/**
+ * Convert buffer to byte array.
+ *
+ * @param {Buffer|Uint8Array} x Buffer to convert.
+ * @returns {Uint8Array} Byte array representation.
+ */
 const byarr = (x) => Uint8Array.from(x); // Cannot be point-free since Uint8Array.from() needs to be bound to its prototype
 
-// Number to binary string conversion
+/**
+ * Number to binary string conversion.
+ *
+ * @param {number} x Number to convert.
+ * @returns {string} Binary representation of the number.
+ */
 const nTobin = (x) => x.toString(2);
 
-// Convert to byte array and apply complement
+/**
+ * Convert input to a byte array and apply bitwise complement.
+ *
+ * @param {Buffer|Uint8Array|string} x Data to complement.
+ * @returns {Uint8Array} Complemented byte array.
+ */
 const compliment = pipe(byarr, map(_not));
 
-// Map over an array in fixed-size steps
+/**
+ * Map over an array in fixed-size steps.
+ *
+ * @param {function} callback Function applied to each step.
+ * @param {number} step Size of each step.
+ * @param {Array} array Input array.
+ * @returns {Array} Result of mapping.
+ */
 const stepMap = curry((callback, step, array) => {
   return array
     .map((d, i, array) => {
@@ -52,7 +89,14 @@ const stepMap = curry((callback, step, array) => {
     .filter((d, i) => i % step === 0);
 });
 
-// Pure recursive regular expression replace
+/**
+ * Pure recursive regular expression replace.
+ *
+ * @param {string} data         Source string.
+ * @param {string[]} patternArray  Patterns to replace.
+ * @param {string[]} replaceArray  Replacement strings.
+ * @returns {string} Mutated string with replacements applied.
+ */
 const recursiveReplace = (data, patternArray, replaceArray) => {
   if (isEmpty(patternArray) && isEmpty(replaceArray)) {
     return data;
@@ -67,7 +111,13 @@ const recursiveReplace = (data, patternArray, replaceArray) => {
   );
 };
 
-// Pad with zeroes to get required length
+/**
+ * Pad a number with leading zeroes to achieve the required length.
+ *
+ * @param {number} x   Desired length.
+ * @param {number|string} num Number to pad.
+ * @returns {string} Padded string.
+ */
 const zeroPad = curry((x, num) => {
   var zero = "";
   for (let i = 0; i < x; i++) {
@@ -76,10 +126,20 @@ const zeroPad = curry((x, num) => {
   return zero.slice(String(num).length) + num;
 });
 
-// Byte array to binary string conversion. Ensure input bytes are unsigned.
+/**
+ * Byte array to binary string conversion. Ensures input bytes are unsigned.
+ *
+ * @param {Buffer|Uint8Array|string} x Data to convert.
+ * @returns {string} Binary string representation.
+ */
 const byteToBin = pipe(byarr, Array.from, map(nTobin), map(zeroPad(8)), join(""));
 
-// Binary string to byte array conversion
+/**
+ * Binary string to byte array conversion.
+ *
+ * @param {string} str Binary string.
+ * @returns {Uint8Array} Byte array.
+ */
 const binToByte = (str) => {
   var arr = [];
   for (let i = 0; i < str.length; i += 8) {

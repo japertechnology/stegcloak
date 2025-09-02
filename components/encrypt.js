@@ -20,9 +20,16 @@ const { toBuffer, concatBuff, buffSlice } = require("./util.js");
 const _genKey = (password, salt) =>
   pbkdf2Sync(password, salt, 10000, 48, "sha512");
 
-// AES stream cipher with random salt and IV.  Expects an object
-// `{password, data, integrity}` and returns an encrypted Buffer.  When
-// `integrity` is true, an HMAC of the plaintext is prepended to the output.
+/**
+ * AES stream cipher with random salt and IV.
+ *
+ * Expects an object `{password, data, integrity}` and returns an encrypted
+ * Buffer. When `integrity` is true, an HMAC of the plaintext is prepended to
+ * the output.
+ *
+ * @param {{password: string, data: Buffer|string, integrity: boolean}} config Encryption options.
+ * @returns {Buffer} Encrypted payload including salt and optional HMAC.
+ */
 const encrypt = (config) => {
   // Impure function – generates random bytes for salt and IV.
   const salt = randomBytes(16);
@@ -36,8 +43,14 @@ const encrypt = (config) => {
   return concatBuff([salt, payload]);
 };
 
-// Reverse of `encrypt`. Validates HMAC when requested and returns the
-// decrypted Buffer. Throws on integrity failure or malformed input.
+/**
+ * Reverse of {@link encrypt}. Validates HMAC when requested and returns the
+ * decrypted Buffer. Throws on integrity failure or malformed input.
+ *
+ * @param {{password: string, data: Buffer|string, integrity: boolean}} config Decryption options.
+ * @returns {Buffer} Decrypted plaintext buffer.
+ * @throws {Error} If integrity validation fails or payload is malformed.
+ */
 const decrypt = (config) => {
   const { iv, key, secret, hmacData } = _bootDecrypt(config, null);
   const decipher = createDecipheriv("aes-256-ctr", key, iv);

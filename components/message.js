@@ -20,6 +20,14 @@ const {
 
 const { zeroPad, nTobin, stepMap, binToByte } = require("./util.js");
 
+/**
+ * Factory that returns helpers for converting data to and from zero width
+ * character streams.
+ *
+ * @param {string[]} zwc Array of zero width characters used for encoding.
+ * @returns {{detach: function(string): string, concealToData: function(string): object, toConcealHmac: function(string): string, toConceal: function(string): string, noCrypt: function(string): string}}
+ * Object exposing conversion utilities.
+ */
 const zwcOperations = (zwc) => {
   // Map binary to its corresponding zero width character
   const _binToZWC = (str) => zwc[parseInt(str, 2)];
@@ -120,10 +128,17 @@ const zwcOperations = (zwc) => {
   };
 };
 
-// Embed invisble stream to cover text
-
-// An optional RNG can be supplied for deterministic behaviour in tests.
-// The RNG should be a function that mimics Math.random.
+/**
+ * Embed an invisible stream into the provided cover text.
+ *
+ * An optional RNG can be supplied for deterministic behaviour in tests. The RNG
+ * should be a function that mimics `Math.random`.
+ *
+ * @param {string} cover Visible text that will hide the secret.
+ * @param {string} secret Zero width character stream to embed.
+ * @param {function} [rng=Math.random] Optional random number generator.
+ * @returns {string} Cover text with the secret inserted.
+ */
 const embed = (cover, secret, rng = Math.random) => {
   const arr = cover.split(/(\s+)/);
   const wordCount = Math.ceil(arr.length / 2);
