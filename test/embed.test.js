@@ -22,6 +22,13 @@ covers.forEach((cover, idx) => {
   );
 });
 
+// Single-word cover should produce a clear error
+assert.throws(
+  () => embed('hello', secret, rng),
+  /Cover text must contain at least two words/,
+  'embed should throw an error when cover has fewer than two words'
+);
+
 console.log('All tests passed.');
 
 process.exit(0);

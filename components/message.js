@@ -144,6 +144,9 @@ const zwcOperations = (zwc) => {
 const embed = (cover, secret, rng = Math.random) => {
   const arr = cover.split(/(\s+)/);
   const wordCount = Math.ceil(arr.length / 2);
+  if (wordCount < 2) {
+    throw new Error("Cover text must contain at least two words");
+  }
   // Ensure we pick an index that has a following word available
   const targetWordIndex = Math.floor(rng() * (wordCount - 1));
   const targetIndex = targetWordIndex * 2 + 2;
