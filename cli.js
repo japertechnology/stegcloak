@@ -52,11 +52,24 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
     console.log(chalk.red(e))
     process.exit(1)
   }
-  clipboardy.writeSync(payload)
+  try {
+    clipboardy.writeSync(payload)
+  } catch (e) {
+    spinner.stop()
+    console.log('\n')
+    console.log(chalk.red(`Error writing to clipboard: ${e.message}`))
+    process.exit(1)
+  }
   setTimeout(() => {
     spinner.stop()
     if (op) {
-      fs.writeFileSync(op, payload)
+      try {
+        fs.writeFileSync(op, payload)
+      } catch (e) {
+        console.log('\n')
+        console.log(chalk.red(`Error writing file ${op}: ${e.message}`))
+        process.exit(1)
+      }
       console.log(chalk.grey(`\n Written to ${op} \n`))
       process.exit(0)
     }
@@ -97,7 +110,13 @@ function cliReveal(payload, password, op) {
   setTimeout(() => {
     spinner.stop()
     if (op) {
-      fs.writeFileSync(op, secret)
+      try {
+        fs.writeFileSync(op, secret)
+      } catch (e) {
+        console.log('\n')
+        console.log(chalk.red(`Error writing file ${op}: ${e.message}`))
+        process.exit(1)
+      }
       console.log(chalk.grey(`\n Written to ${op} \n`))
     }
     console.log('\n')
@@ -169,13 +188,23 @@ program
 
     if (args.nocrypt) questions.pop()
 
-    if (args.fcover) {
-      cover = fs.readFileSync(args.fcover, 'utf-8');
-    }
+      if (args.fcover) {
+        try {
+          cover = fs.readFileSync(args.fcover, 'utf-8');
+        } catch (e) {
+          console.log(chalk.red(`Error reading file ${args.fcover}: ${e.message}`))
+          process.exit(1)
+        }
+      }
 
-    if (args.fsecret) {
-      secret = fs.readFileSync(args.fsecret, 'utf-8')
-    }
+      if (args.fsecret) {
+        try {
+          secret = fs.readFileSync(args.fsecret, 'utf-8')
+        } catch (e) {
+          console.log(chalk.red(`Error reading file ${args.fsecret}: ${e.message}`))
+          process.exit(1)
+        }
+      }
 
     if (!secret && !cover) {
       questions.push(createStringQuestion(qsecret, 'secret'), createStringQuestion(qcover, 'cover'))
@@ -184,12 +213,16 @@ program
     } else if (!cover) {
       questions.push(createStringQuestion(qcover, 'cover'))
     }
-    let answers = {};
-    if (questions.length) {
-      answers = await inquirer.prompt(questions);
-    }
-    cliHide(answers.secret || secret, answers.password || process.env["STEGCLOAK_PASSWORD"], cover || answers.cover, !args.nocrypt, args.integrity, args.output)
-  })
+      let answers = {};
+      if (questions.length) {
+        answers = await inquirer.prompt(questions);
+      }
+      if (args.integrity && args.nocrypt) {
+        console.log(chalk.red('Error: Integrity checks require encryption'))
+        process.exit(1)
+      }
+      cliHide(answers.secret || secret, answers.password || process.env["STEGCLOAK_PASSWORD"], cover || answers.cover, !args.nocrypt, args.integrity, args.output)
+    })
 
 // CLI
 
@@ -235,16 +268,28 @@ program
     }];
 
 
-    if (args.file) {
-      data = fs.readFileSync(args.file, 'utf-8')
-      console.log(chalk.cyan(`Extracted text from ${args.file} to be decrypted !`))
-      console.log()
-    }
+      if (args.file) {
+        try {
+          data = fs.readFileSync(args.file, 'utf-8')
+          console.log(chalk.cyan(`Extracted text from ${args.file} to be decrypted !`))
+          console.log()
+        } catch (e) {
+          console.log(chalk.red(`Error reading file ${args.file}: ${e.message}`))
+          process.exit(1)
+        }
+      }
 
     if (args.clip || data) {
-      const mutatedQuestions = questions.slice(1)
+        const mutatedQuestions = questions.slice(1)
 
-      data = data || clipboardy.readSync()
+        if (!data) {
+          try {
+            data = clipboardy.readSync()
+          } catch (e) {
+            console.log(chalk.red(`Error reading from clipboard: ${e.message}`))
+            process.exit(1)
+          }
+        }
 
       let stream
       try {
