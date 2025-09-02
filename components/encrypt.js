@@ -21,9 +21,9 @@ const _genKey = (password, salt) =>
   pbkdf2Sync(password, salt, 10000, 48, "sha512");
 
 /**
- * Encrypt a UTF-8 string using AES-256-CTR with a random salt and IV.
+ * Encrypt binary data using AES-256-CTR with a random salt and IV.
  * Optionally prepends an HMAC for integrity protection.
- * @param {{password: string, data: string|Buffer, integrity: boolean}} config
+ * @param {{password: string, data: Buffer, integrity: boolean}} config
  * @returns {Buffer} Encrypted payload containing salt and optional HMAC.
  */
 const encrypt = (config) => {
@@ -31,7 +31,7 @@ const encrypt = (config) => {
   const salt = randomBytes(16);
   const { iv, key, secret } = _bootEncrypt(config, salt);
   const cipher = createCipheriv("aes-256-ctr", key, iv);
-  const payload = concatBuff([cipher.update(secret, "utf8"), cipher.final()]);
+  const payload = concatBuff([cipher.update(secret), cipher.final()]);
   if (config.integrity) {
     const hmac = createHmac("sha256", key).update(secret).digest();
     return concatBuff([salt, hmac, payload]);
@@ -48,10 +48,7 @@ const encrypt = (config) => {
 const decrypt = (config) => {
   const { iv, key, secret, hmacData } = _bootDecrypt(config, null);
   const decipher = createDecipheriv("aes-256-ctr", key, iv);
-  const decrypted = concatBuff([
-    decipher.update(secret, "utf8"),
-    decipher.final(),
-  ]);
+  const decrypted = concatBuff([decipher.update(secret), decipher.final()]);
   if (config.integrity) {
     const vHmac = createHmac("sha256", key).update(decrypted).digest();
     if (!timeSafeCheck(hmacData, vHmac)) {
