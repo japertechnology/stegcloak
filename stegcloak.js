@@ -93,6 +93,12 @@ class StegCloak {
 
     const crypt = this.encrypt;
 
+    if (integrity && !crypt) {
+      throw new Error(
+        "Integrity checks require encryption to be enabled"
+      );
+    }
+
     if (crypt && (typeof password !== "string" || password.length === 0)) {
       throw new Error(
         "Password must be a non-empty string when encryption is enabled"

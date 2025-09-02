@@ -124,6 +124,10 @@ program
   // Allow providing all inputs via JSON config file
   .option('-c, --config <config>', 'Config file')
   .action(async (secret, cover, args) => {
+    if (args.integrity && args.nocrypt) {
+      console.log(chalk.red('Error: Integrity checks require encryption'))
+      process.exit(1)
+    }
     if (args.config) {
       jsonfile.readFile(args.config)
         .then(obj => {
@@ -139,6 +143,10 @@ program
           }
           let integrity = obj.integrity || false;
           let nocrypt = obj.nocrypt || false;
+          if (integrity && nocrypt) {
+            console.log(chalk.red('Error: Integrity checks require encryption'))
+            process.exit(1)
+          }
           let output = obj.output || false;
           cliHide(secret, password, cover, !nocrypt, integrity, output);
         })
