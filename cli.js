@@ -9,7 +9,6 @@ const {
   program
 } = require('commander')
 const StegCloak = require('./stegcloak')
-const R = require('ramda')
 const chalk = require('chalk')
 const clipboardy = require('clipboardy')
 var inquirer = require('inquirer')
