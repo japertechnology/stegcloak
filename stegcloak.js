@@ -50,7 +50,15 @@ const {
   compliment
 } = require("./components/util");
 
+/**
+ * Core class exposing the public API for hiding and revealing messages.
+ */
 class StegCloak {
+  /**
+   * Create a new StegCloak instance.
+   * @param {boolean} [_encrypt=true] Enable encryption of the payload.
+   * @param {boolean} [_integrity=false] Enable HMAC integrity protection.
+   */
   constructor(_encrypt = true, _integrity = false) {
     // By default encryption is enabled and integrity (HMAC) disabled
     this.encrypt = _encrypt;
@@ -59,6 +67,10 @@ class StegCloak {
     this.integrity = _integrity;
   }
 
+  /**
+   * Expose the zero width character table used for encoding.
+   * @returns {string[]} Array of zero width characters.
+   */
   static get zwc() {
     return zwc;
   }

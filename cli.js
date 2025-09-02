@@ -23,8 +23,16 @@ const { expand } = zwcHuffMan(StegCloak.zwc)
 const { detach } = zwcOperations(StegCloak.zwc);
 
 
-// Hide a secret message using supplied options and optionally copy or write
-// the result.  Acts as the implementation behind the `hide` command.
+/**
+ * Hide a secret message using supplied options and optionally copy or write
+ * the result. Acts as the implementation behind the `hide` command.
+ * @param {string} secret Message to conceal.
+ * @param {string} password Password used for encryption when `crypt` is true.
+ * @param {string} cover Visible cover text.
+ * @param {boolean} crypt Whether to encrypt the message.
+ * @param {boolean} integrity Enable HMAC integrity protection.
+ * @param {string} [op] Optional output file path.
+ */
 function cliHide(secret, password, cover, crypt, integrity, op) {
   const stegcloak = new StegCloak(crypt, integrity)
 
@@ -57,12 +65,22 @@ function cliHide(secret, password, cover, crypt, integrity, op) {
   }, 300)
 };
 
-// Small helper to build Inquirer question objects
+/**
+ * Small helper to build Inquirer question objects.
+ * @param {string} str Prompt message.
+ * @param {string} nameIt Name of the property for the answer object.
+ * @returns {Object} Inquirer question configuration.
+ */
 function createStringQuestion(str, nameIt) {
   return { type: 'input', message: str, name: nameIt }
 }
 
-// Reveal and display a hidden message. Mirrors `cliHide` but for extraction.
+/**
+ * Reveal and display a hidden message. Mirrors {@link cliHide} but for extraction.
+ * @param {string} payload Text containing the concealed secret.
+ * @param {string} [password] Password used for decryption.
+ * @param {string} [op] Optional output file path for the revealed secret.
+ */
 function cliReveal(payload, password, op) {
   const stegcloak = new StegCloak()
   var spinner = ora(chalk.cyan.bold('Decrypting'))
