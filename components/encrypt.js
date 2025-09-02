@@ -27,6 +27,9 @@ const _genKey = (password, salt) =>
  * @returns {Buffer} Encrypted payload containing salt and optional HMAC.
  */
 const encrypt = (config) => {
+  if (typeof config.password !== "string" || config.password.length === 0) {
+    throw new Error("Password must be a non-empty string");
+  }
   // Impure function – generates random bytes for salt and IV.
   const salt = randomBytes(16);
   const { iv, key, secret } = _bootEncrypt(config, salt);
@@ -46,6 +49,9 @@ const encrypt = (config) => {
  * @returns {Buffer} Decrypted plaintext.
  */
 const decrypt = (config) => {
+  if (typeof config.password !== "string" || config.password.length === 0) {
+    throw new Error("Password must be a non-empty string");
+  }
   const { iv, key, secret, hmacData } = _bootDecrypt(config, null);
   const decipher = createDecipheriv("aes-256-ctr", key, iv);
   const decrypted = concatBuff([decipher.update(secret), decipher.final()]);
