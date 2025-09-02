@@ -51,7 +51,7 @@ const findOptimal = (secret, characters) => {
   const size = secret.length;
   for (let j = 0; j < size; j++) {
     let count = 1;
-    while (j < size && secret[j] === secret[j + 1]) {
+    while (j + 1 < size && secret[j] === secret[j + 1]) {
       count++;
       j++;
     }
